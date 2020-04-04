@@ -10,8 +10,8 @@ numpy.random.seed(42)
 ### mini-project.
 words_file = "../text_learning/your_word_data.pkl" 
 authors_file = "../text_learning/your_email_authors.pkl"
-word_data = pickle.load( open(words_file, "r"))
-authors = pickle.load( open(authors_file, "r") )
+word_data = pickle.load( open(words_file, "rb"))
+authors = pickle.load( open(authors_file, "rb") )
 
 
 
@@ -19,8 +19,8 @@ authors = pickle.load( open(authors_file, "r") )
 ### remainder go into training)
 ### feature matrices changed to dense representations for compatibility with
 ### classifier functions in versions 0.15.2 and earlier
-from sklearn import cross_validation
-features_train, features_test, labels_train, labels_test = cross_validation.train_test_split(word_data, authors, test_size=0.1, random_state=42)
+from sklearn.model_selection import train_test_split
+features_train, features_test, labels_train, labels_test = train_test_split(word_data, authors, test_size=0.1, random_state=42)
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5,
@@ -38,6 +38,34 @@ labels_train   = labels_train[:150]
 
 
 ### your code goes here
+from sklearn import tree
 
+clf = tree.DecisionTreeClassifier(min_samples_split=40)
+clf = clf.fit(features_train, labels_train)
+pred = clf.predict(features_test, labels_test)
+acc = clf.score(features_test, labels_test)
+
+print("number of training points:", len(features_train))
+print("accuracy of the decision tree:", acc)
+
+list_importances = clf.feature_importances_
+importance = 0
+i = 0
+for j in list_importances:
+    if j > importance:
+        importance = j
+        no_feature = i
+    i += 1
+
+print("importance of the most important feature:", importance)
+print("number of the most important feature:", no_feature)
+print("most important feature:", vectorizer.get_feature_names()[no_feature])
+
+i = 0
+for j in list_importances:
+    if j > 0.2:
+        i += 1
+
+print("number of features with importance great than 0.2:", i)
 
 
